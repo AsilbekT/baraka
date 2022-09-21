@@ -30,7 +30,7 @@ class Product(models.Model):
     description = models.CharField(max_length=100)
     narx = models.IntegerField(default=0)
     image = models.ImageField(upload_to ='products/', default="default.jpg")
-    availa = models.IntegerField(default=0)
+    available = models.IntegerField(default=0)
     sold = models.IntegerField(default=0)
     liked = models.IntegerField(default=0)
     checked = models.BooleanField(default=False)

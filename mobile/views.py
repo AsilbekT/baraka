@@ -22,8 +22,8 @@ def catagory_list(request):
         return JsonResponse(serializer.data, safe=False)
 
     elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = CatagorySerializer(data=data)
+        # data = JSONParser().parse(request)
+        serializer = CatagorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
@@ -44,8 +44,8 @@ def product_list(request):
         return JsonResponse(serializer.data, safe=False)
 
     elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = ProductSerializer(data=data)
+        # data = JSONParser().parse(request)
+        serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
@@ -60,15 +60,18 @@ def store(request):
         token = Token.objects.get(key=got_token)
         user = token.user
         customer = Customer.objects.get(user=user)
+        details = request.data['details']
         try:
-            product = Product.objects.get(id=request.data['product_id'])
-            order, created  = Order.objects.get_or_create(customer=customer, complete=False)
-            if int(product.available) >= int(request.data['quantity']):
-                orderItems = OrderItem.objects.create(order=order, product=product, quantity=request.data['quantity'])
-                product.available -= int(request.data['quantity'])
-                product.save()
-            elif int(product.available) < int(request.data['quantity']):
-                return Response({"status":"omborda yetarli maxsulot yo'q"})
+            for i in details:
+                print(i)
+                product = Product.objects.get(id=i['product_id'])
+                order, created  = Order.objects.get_or_create(customer=customer, complete=False)
+                if int(product.available) >= int(i['quantity']):
+                    orderItems = OrderItem.objects.create(order=order, product=product, quantity=i['quantity'])
+                    product.available -= int(i['quantity'])
+                    product.save()
+                elif int(product.available) < int(i['quantity']):
+                    return Response({"status":"omborda yetarli maxsulot yo'q"})
             
         except:
             return Response({"status":"xatolik bor"})
@@ -86,3 +89,10 @@ def product_detail(request, id):
         return Response({"error": "Bu maxsulot yo'q"})
 
     return Response({"status":"Muvaffaqiyatli saqlandi"})
+
+
+
+
+
+def api_doc(request):
+    return render(request, "api.html")
